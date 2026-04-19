@@ -1,7 +1,5 @@
 .venv/
 .env
 data/
-models/
 *.csv
-*.joblib
 __pycache__/
