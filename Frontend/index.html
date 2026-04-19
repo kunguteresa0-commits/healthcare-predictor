@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Healthcare Predictor</title>
+    <style>
+        body { font-family: Arial; margin: 40px; background: #f0f2f5; }
+        .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 12px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: inline-block; width: 180px; font-weight: bold; }
+        select, input { width: 250px; padding: 8px; border-radius: 6px; border: 1px solid #ccc; }
+        button { background: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
+        .result { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 8px; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>🏥 Healthcare Test Result Predictor</h2>
+    <form id="predictForm">
+        <div class="form-group">
+            <label>Age:</label>
+            <input type="number" name="Age" required>
+        </div>
+        <div class="form-group">
+            <label>Gender:</label>
+            <select name="Gender" required>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Blood Type:</label>
+            <select name="Blood_Type" required>
+                <option value="A+">A+</option><option value="A-">A-</option>
+                <option value="B+">B+</option><option value="B-">B-</option>
+                <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                <option value="O+">O+</option><option value="O-">O-</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Medical Condition:</label>
+            <select name="Medical_Condition" required>
+                <option value="Diabetes">Diabetes</option>
+                <option value="Hypertension">Hypertension</option>
+                <option value="Asthma">Asthma</option>
+                <option value="Obesity">Obesity</option>
+                <option value="Arthritis">Arthritis</option>
+                <option value="Cancer">Cancer</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Billing Amount ($):</label>
+            <input type="number" step="any" name="Billing_Amount" required>
+        </div>
+        <div class="form-group">
+            <label>Admission Type:</label>
+            <select name="Admission_Type" required>
+                <option value="Emergency">Emergency</option>
+                <option value="Elective">Elective</option>
+                <option value="Urgent">Urgent</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Insurance Provider:</label>
+            <select name="Insurance_Provider" required>
+                <option value="Medicare">Medicare</option>
+                <option value="Aetna">Aetna</option>
+                <option value="UnitedHealthcare">UnitedHealthcare</option>
+                <option value="Cigna">Cigna</option>
+                <option value="Blue Cross">Blue Cross</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Medication:</label>
+            <select name="Medication" required>
+                <option value="Aspirin">Aspirin</option>
+                <option value="Ibuprofen">Ibuprofen</option>
+                <option value="Paracetamol">Paracetamol</option>
+                <option value="Penicillin">Penicillin</option>
+                <option value="Lipitor">Lipitor</option>
+            </select>
+        </div>
+        <button type="submit">Predict</button>
+    </form>
+    <div id="result" class="result" style="display:none"></div>
+</div>
+
+<script>
+    document.getElementById('predictForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const data = Object.fromEntries(new FormData(e.target));
+        const resultDiv = document.getElementById('result');
+        resultDiv.style.display = 'none';
+        try {
+            const res = await fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            if (!res.ok) throw new Error(await res.text());
+            const json = await res.json();
+            let html = `<strong>Prediction:</strong> ${json.predicted_test_result}<br><strong>Probabilities:</strong><br>`;
+            for (const [k, v] of Object.entries(json.probabilities)) {
+                html += `${k}: ${(v*100).toFixed(1)}%<br>`;
+            }
+            resultDiv.innerHTML = html;
+            resultDiv.style.display = 'block';
+        } catch (err) {
+            resultDiv.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+            resultDiv.style.display = 'block';
+        }
+    });
+</script>
+</body>
+</html>
