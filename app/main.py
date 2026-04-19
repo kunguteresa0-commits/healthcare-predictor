@@ -46,7 +46,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.get("/", response_class=HTMLResponse)
 async def frontend():
-    with open("frontend/index.html", "r", encoding="utf-8") as f:
+    with open("Frontend/index.html", "r", encoding="utf-8") as f:
         return HTMLResponse(content=f.read())
 
 @app.post("/predict")
